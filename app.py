@@ -1,3 +1,5 @@
+import json
+
 from flask import Flask, request, jsonify
 import pickle
 import numpy as np
@@ -11,7 +13,12 @@ app.config[
 db = SQLAlchemy(app)
 
 
-class SensorValues(db.Model):
+class JsonModel(object):
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+class SensorValues(db.Model, JsonModel):
     __tablename__ = 'sensor_data'
     id = db.Column(db.Integer, primary_key=True)
     AccX = db.Column(db.Float)
@@ -50,6 +57,11 @@ def save_data():
         db.session.add(data)
         db.session.commit()
         return "Written!"
+
+
+@app.route('/getAllSensorData', methods=['GET'])
+def get_data():
+    return json.dumps([ss.as_dict() for ss in SensorValues.query.all()])
 
 
 @app.route('/')
