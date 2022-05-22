@@ -49,6 +49,7 @@ def save_data():
         data = SensorValues(AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ)
         db.session.add(data)
         db.session.commit()
+        return "Written!"
 
 
 @app.route('/')
