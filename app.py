@@ -3,6 +3,7 @@ import json
 from flask import Flask, request, jsonify
 import pickle
 import numpy as np
+import pandas as pd
 # import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
 
@@ -134,11 +135,11 @@ def get_data():
 #                     'cornering_rate': cornering_rate})
 
 
-@app.route('/sendEndResult', methods=['POST'])
-def send_end_result_of_driver():
-    dct = get_result()
-    print(dct[1])
-    return get_result()
+# @app.route('/sendEndResult', methods=['POST'])
+# def send_end_result_of_driver():
+#     dct = get_result()
+#     print(dct[1])
+#     return get_result()
 
 
 @app.route('/predict', methods=['POST'])
