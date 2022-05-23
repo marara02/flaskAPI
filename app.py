@@ -115,24 +115,23 @@ def get_data():
     return json.dumps([ss.as_dict() for ss in SensorValues.query.all()])
 
 
-#
-# @app.route('/getResult', methods=['GET'])
-# def get_result():
-#     js = pd.read_json(json.dumps([ss.as_dict() for ss in SensorValues.query.all()]))
-#     result = model.predict(js)
-#     dst = []
-#     new_result = []
-#     for i in result:
-#         new_result.append(i)
-#     acceleration_times = [x for x in new_result if x == 0]
-#     braking_times = [x for x in new_result if x == 1]
-#     cornering_times = [x for x in new_result if x == 2]
-#     acceleration_rate = len(acceleration_times)
-#     braking_rate = len(braking_times)
-#     cornering_rate = len(cornering_times)
-#     return jsonify({'acceleration_rate': acceleration_rate,
-#                     'braking_rate': braking_rate,
-#                     'cornering_rate': cornering_rate})
+@app.route('/getResult', methods=['GET'])
+def get_result():
+    js = pd.read_json(json.dumps([ss.as_dict() for ss in SensorValues.query.all()]))
+    result = model.predict(js)
+    dst = []
+    new_result = []
+    for i in result:
+        new_result.append(i)
+    acceleration_times = [x for x in new_result if x == 0]
+    braking_times = [x for x in new_result if x == 1]
+    cornering_times = [x for x in new_result if x == 2]
+    acceleration_rate = len(acceleration_times)
+    braking_rate = len(braking_times)
+    cornering_rate = len(cornering_times)
+    return jsonify({'acceleration_rate': acceleration_rate,
+                    'braking_rate': braking_rate,
+                    'cornering_rate': cornering_rate})
 
 
 # @app.route('/sendEndResult', methods=['POST'])
