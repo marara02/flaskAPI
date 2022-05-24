@@ -97,7 +97,6 @@ def home():
 @app.route('/saveData', methods=['POST'])
 def save_data():
     if request.method == 'POST':
-        timestamp = request.form.get('TimeStamp')
         AccX = request.form.get('AccX')
         AccY = request.form.get('AccY')
         AccZ = request.form.get('AccZ')
@@ -106,11 +105,19 @@ def save_data():
         GyroX = request.form.get('GyroX')
         GyroY = request.form.get('GyroY')
         GyroZ = request.form.get('GyroZ')
+        timestamp = request.form.get('TimeStamp')
 
         data = SensorValues(timestamp, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ)
         db.session.add(data)
         db.session.commit()
         return "Written!"
+
+
+@app.route('/deleteSensors', methods=['DELETE'])
+def delete_data():
+    db.session.query(SensorValues).delete()
+    db.session.commit()
+    return "Deleted"
 
 
 @app.route('/getAllSensorData', methods=['GET'])
