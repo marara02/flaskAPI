@@ -21,8 +21,9 @@ class JsonModel(object):
 
 
 class SensorValues(db.Model, JsonModel):
-    __tablename__ = 'sensor_data'
+    __tablename__ = 'sensor_data_upd'
     id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.String(100))
     AccX = db.Column(db.Float)
     AccY = db.Column(db.Float)
     AccZ = db.Column(db.Float)
@@ -32,7 +33,8 @@ class SensorValues(db.Model, JsonModel):
     GyroY = db.Column(db.Float)
     GyroZ = db.Column(db.Float)
 
-    def __init__(self, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ):
+    def __init__(self, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp):
+        self.timestamp = timestamp
         self.AccX = AccX
         self.AccY = AccY
         self.AccZ = AccZ
@@ -119,7 +121,6 @@ def get_data():
 def get_result():
     js = pd.read_json(json.dumps([ss.as_dict() for ss in SensorValues.query.all()]))
     result = model.predict(js)
-    dst = []
     new_result = []
     for i in result:
         new_result.append(i)
@@ -129,16 +130,18 @@ def get_result():
     acceleration_rate = len(acceleration_times)
     braking_rate = len(braking_times)
     cornering_rate = len(cornering_times)
-    return jsonify({'acceleration_rate': acceleration_rate,
-                    'braking_rate': braking_rate,
-                    'cornering_rate': cornering_rate})
+    dct = {
+        "acceleration_rate": acceleration_rate,
+        "braking_rate": braking_rate,
+        "cornering_rate": cornering_rate
+    }
+    return dct
 
 
-# @app.route('/sendEndResult', methods=['POST'])
-# def send_end_result_of_driver():
-#     dct = get_result()
-#     print(dct[1])
-#     return get_result()
+@app.route('/sendEndResult', methods=['POST'])
+def send_end_result_of_driver():
+    dct = get_result()
+    print(dct['acceleration_rate'])
 
 
 @app.route('/predict', methods=['POST'])
