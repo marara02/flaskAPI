@@ -128,6 +128,8 @@ def get_data():
 @app.route('/getResult', methods=['GET'])
 def get_result():
     js = pd.read_json(json.dumps([ss.as_dict() for ss in SensorValues.query.all()]))
+    del js['id']
+    del js['timestamp']
     result = model.predict(js)
     new_result = []
     for i in result:
