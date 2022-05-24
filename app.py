@@ -46,18 +46,21 @@ class SensorValues(db.Model, JsonModel):
 
 
 class DriverRates(db.Model, JsonModel):
-    __tablename__ = 'driver_rate'
+    __tablename__ = 'driver_rate_total'
     id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime)
-    driving_id = db.Column(db.Integer)
+    driver_id = db.Column(db.Integer)
+    timestamp_start = db.Column(db.String(100))
+    timestamp_end = db.Column(db.String(100))
     acceleration_rate = db.Column(db.Integer)
     braking_rate = db.Column(db.Integer)
     cornering_rate = db.Column(db.Integer)
     safety_score = db.Column(db.Integer)
 
-    def __init__(self, timestamp, driving_id, acceleration_rate, braking_rate, cornering_rate, safety_score):
-        self.timestamp = timestamp
+    def __init__(self, driving_id, timestamp_start, timestamp_end, acceleration_rate, braking_rate, cornering_rate,
+                 safety_score):
         self.driving_id = driving_id
+        self.timestamp_start = timestamp_start
+        self.timestamp_end = timestamp_end
         self.acceleration_rate = acceleration_rate
         self.braking_rate = braking_rate
         self.cornering_rate = cornering_rate
@@ -128,6 +131,8 @@ def get_data():
 @app.route('/getResult', methods=['GET'])
 def get_result():
     js = pd.read_json(json.dumps([ss.as_dict() for ss in SensorValues.query.all()]))
+    tst = js['timestamp'][0]
+    tet = js['timestamp'].iloc[-1]
     del js['id']
     del js['timestamp']
     result = model.predict(js)
@@ -141,6 +146,8 @@ def get_result():
     braking_rate = len(braking_times)
     cornering_rate = len(cornering_times)
     dct = {
+        "time_start": tst,
+        "time_end": tet,
         "acceleration_rate": acceleration_rate,
         "braking_rate": braking_rate,
         "cornering_rate": cornering_rate
@@ -151,7 +158,15 @@ def get_result():
 @app.route('/sendEndResult', methods=['POST'])
 def send_end_result_of_driver():
     dct = get_result()
-    print(dct['acceleration_rate'])
+    start = dct['time_start']
+    end = dct['time_end']
+    acr = dct['acceleration_rate']
+    br = dct['braking_rate']
+    corn = dct['cornering_rate']
+    data = DriverRates(1, start, end, acr, br, corn, 55)
+    db.session.add(data)
+    db.session.commit()
+    return "Written to result database"
 
 
 @app.route('/predict', methods=['POST'])
