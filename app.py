@@ -22,7 +22,8 @@ class JsonModel(object):
 
 class SensorValues(db.Model, JsonModel):
     __tablename__ = 'sensor_data_upd'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(40), primary_key=True)
+    driver_id = db.Column(db.Integer, default=1)
     timestamp = db.Column(db.String(100))
     AccX = db.Column(db.Float)
     AccY = db.Column(db.Float)
@@ -33,7 +34,9 @@ class SensorValues(db.Model, JsonModel):
     GyroY = db.Column(db.Float)
     GyroZ = db.Column(db.Float)
 
-    def __init__(self, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp):
+    def __init__(self, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp, driver_id, id):
+        self.id = id
+        self.driver_id = driver_id
         self.timestamp = timestamp
         self.AccX = AccX
         self.AccY = AccY
@@ -106,8 +109,9 @@ def save_data():
         GyroY = request.form.get('GyroY')
         GyroZ = request.form.get('GyroZ')
         timestamp = request.form.get('TimeStamp')
-
-        data = SensorValues(AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp)
+        driver_id = request.form.get('Driver_id')
+        id = request.form.get('id')
+        data = SensorValues(AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp, driver_id, id)
         db.session.add(data)
         db.session.commit()
         return "Written!"
@@ -129,6 +133,7 @@ def get_data():
 def get_result():
     js = pd.read_json(json.dumps([ss.as_dict() for ss in SensorValues.query.all()]))
     del js['id']
+    del js['driver_id']
     del js['timestamp']
     result = model.predict(js)
     new_result = []
