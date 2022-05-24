@@ -22,7 +22,8 @@ class JsonModel(object):
 
 class SensorValues(db.Model, JsonModel):
     __tablename__ = 'sensor_data_upd_2'
-    id = db.Column(db.String(40), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    driving_id = db.Column(db.String(40))
     driver_id = db.Column(db.Integer, default=1)
     timestamp = db.Column(db.String(100))
     AccX = db.Column(db.Float)
@@ -34,8 +35,8 @@ class SensorValues(db.Model, JsonModel):
     GyroY = db.Column(db.Float)
     GyroZ = db.Column(db.Float)
 
-    def __init__(self, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp, driver_id, id):
-        self.id = id
+    def __init__(self, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp, driver_id, driving_id):
+        self.driving_id = driving_id
         self.driver_id = driver_id
         self.timestamp = timestamp
         self.AccX = AccX
@@ -110,8 +111,8 @@ def save_data():
         GyroZ = request.form.get('GyroZ')
         timestamp = request.form.get('TimeStamp')
         driver_id = request.form.get('Driver_id')
-        id = request.form.get('id')
-        data = SensorValues(AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp, driver_id, id)
+        driving_id = request.form.get('id')
+        data = SensorValues(AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp, driver_id, driving_id)
         db.session.add(data)
         db.session.commit()
         return "Written!"
