@@ -21,7 +21,7 @@ class JsonModel(object):
 
 
 class SensorValues(db.Model, JsonModel):
-    __tablename__ = 'sensor_data_upd'
+    __tablename__ = 'sensor_data_upd_2'
     id = db.Column(db.String(40), primary_key=True)
     driver_id = db.Column(db.Integer, default=1)
     timestamp = db.Column(db.String(100))
