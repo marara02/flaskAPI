@@ -107,7 +107,7 @@ def save_data():
         GyroZ = request.form.get('GyroZ')
         timestamp = request.form.get('TimeStamp')
 
-        data = SensorValues(timestamp, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ)
+        data = SensorValues(AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp)
         db.session.add(data)
         db.session.commit()
         return "Written!"
