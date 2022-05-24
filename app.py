@@ -97,6 +97,7 @@ def home():
 @app.route('/saveData', methods=['POST'])
 def save_data():
     if request.method == 'POST':
+        timestamp = request.form.get('TimeStamp')
         AccX = request.form.get('AccX')
         AccY = request.form.get('AccY')
         AccZ = request.form.get('AccZ')
@@ -106,7 +107,7 @@ def save_data():
         GyroY = request.form.get('GyroY')
         GyroZ = request.form.get('GyroZ')
 
-        data = SensorValues(AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ)
+        data = SensorValues(timestamp, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ)
         db.session.add(data)
         db.session.commit()
         return "Written!"
