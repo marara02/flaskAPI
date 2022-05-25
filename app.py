@@ -171,7 +171,7 @@ def send_end_result_of_driver():
 
 @app.route('/historyResult', methods=['GET'])
 def get_history_driver_rate():
-    return json.dumps([ss.as_dict() for ss in DriverRates.query.all()])
+    return json.dumps({"Driver": [ss.as_dict() for ss in DriverRates.query.all()]})
 
 
 @app.route('/predict', methods=['POST'])
