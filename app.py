@@ -123,6 +123,13 @@ def delete_data():
     return "Deleted"
 
 
+@app.route('/deleteResults', methods=['DELETE'])
+def delete_results():
+    db.session.query(DriverRates).delete()
+    db.session.commit()
+    return "Deleted"
+
+
 @app.route('/getAllSensorData', methods=['GET'])
 def get_data():
     return json.dumps([ss.as_dict() for ss in SensorValues.query.all()])
@@ -145,12 +152,14 @@ def get_result():
     acceleration_rate = len(acceleration_times)
     braking_rate = len(braking_times)
     cornering_rate = len(cornering_times)
+    safety_score = 100 - acceleration_rate - braking_rate - cornering_rate
     dct = {
         "time_start": tst,
         "time_end": tet,
         "acceleration_rate": acceleration_rate,
         "braking_rate": braking_rate,
-        "cornering_rate": cornering_rate
+        "cornering_rate": cornering_rate,
+        "safety_score": safety_score
     }
     return dct
 
@@ -163,7 +172,8 @@ def send_end_result_of_driver():
     acr = dct['acceleration_rate']
     br = dct['braking_rate']
     corn = dct['cornering_rate']
-    data = DriverRates(1, start, end, acr, br, corn, 55)
+    scr = dct["safety_score"]
+    data = DriverRates(1, start, end, acr, br, corn, scr)
     db.session.add(data)
     db.session.commit()
     return "Written to result database"
