@@ -1,6 +1,7 @@
 import json
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Blueprint, url_for, redirect
+from werkzeug.security import generate_password_hash, check_password_hash
 import pickle
 import numpy as np
 import pandas as pd
@@ -92,6 +93,50 @@ class SensorValuesWithTarget(db.Model, JsonModel):
         self.Target = Target
 
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(100))
+    name = db.Column(db.String(100))
+    phone = db.Column(db.String(100))
+
+    def __init__(self, email, password, name, phone):
+        self.email = email
+        self.password = password
+        self.name = name
+        self.phone = phone
+
+
+@app.route('/signup', methods=['POST'])
+def signup_post():
+    email = request.form.get('email')
+    password = request.form.get('password')
+    name = request.form.get('name')
+    phone = request.form.get('phone')
+
+    user = User.query.filter_by(email=email).first()
+    if user is None:
+        new_user = User(email=email, password=password, name=name, phone=phone)
+        db.session.add(new_user)
+        db.session.commit()
+        return jsonify(["Register success"])
+    else:
+        return jsonify(["User already exist"])
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login_post():
+    d = {}
+    if request.method == "POST":
+        email = request.form["email"]
+        password = request.form["password"]
+        login = User.query.filter_by(email=email, password=password).first()
+        if login is None:
+            return jsonify(["Wrong Credentials"])
+        else:
+            return jsonify(["success"])
+
+
 @app.route('/')
 def home():
     return "Hello World"
@@ -133,7 +178,6 @@ def delete_results():
 @app.route('/getAllSensorData', methods=['GET'])
 def get_data():
     return json.dumps([ss.as_dict() for ss in SensorValues.query.all()])
-
 
 
 @app.route('/getResult', methods=['GET'])
