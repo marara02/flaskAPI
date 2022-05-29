@@ -93,7 +93,7 @@ class SensorValuesWithTarget(db.Model, JsonModel):
         self.Target = Target
 
 
-class User(db.Model):
+class Users(db.Model, JsonModel):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
@@ -178,6 +178,11 @@ def delete_results():
 @app.route('/getAllSensorData', methods=['GET'])
 def get_data():
     return json.dumps([ss.as_dict() for ss in SensorValues.query.all()])
+
+
+@app.route('/getUsers', methods=['GET'])
+def get_user():
+    return json.dumps([ss.as_dict() for ss in User.query.all()])
 
 
 @app.route('/getResult', methods=['GET'])
