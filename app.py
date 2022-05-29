@@ -1,6 +1,9 @@
 import json
 
 from flask import Flask, request, jsonify, Blueprint, url_for, redirect
+from flask_migrate import Migrate
+from sqlalchemy import inspect
+from sqlalchemy.orm import backref
 from werkzeug.security import generate_password_hash, check_password_hash
 import pickle
 import numpy as np
@@ -14,6 +17,7 @@ app.config[
     'SQLALCHEMY_DATABASE_URI'] = 'postgresql://odmysiuiafrwrb:9b9c464723bec07cf7715d0de4fd01fd831441bd75d974a567b8ed72ea7ce476@ec2-34-236-94-53.compute-1.amazonaws.com:5432/d54egu67sh89ou'
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
 class JsonModel(object):
@@ -34,6 +38,9 @@ class SensorValues(db.Model, JsonModel):
     GyroX = db.Column(db.Float)
     GyroY = db.Column(db.Float)
     GyroZ = db.Column(db.Float)
+
+    # user_id = db.Column(db.Integer, db.ForeignKey('user_final.id'))
+    # request = db.relationship("User", backref=backref("user_final", uselist=False))
 
     def __init__(self, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp):
         self.timestamp = timestamp
@@ -58,6 +65,9 @@ class DriverRates(db.Model, JsonModel):
     braking_rate = db.Column(db.Integer)
     cornering_rate = db.Column(db.Integer)
     safety_score = db.Column(db.Integer)
+
+    # user_id = db.Column(db.Integer, db.ForeignKey('user_final.id'))
+    # request = db.relationship("User", backref=backref("user_final", uselist=False))
 
     def __init__(self, driving_id, timestamp_start, timestamp_end, acceleration_rate, braking_rate, cornering_rate,
                  safety_score):
@@ -98,6 +108,7 @@ class SensorValuesWithTarget(db.Model, JsonModel):
 
 # Users table
 class UserFinal(db.Model, JsonModel):
+    __tablename__ = 'user_final'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True)
     username = db.Column(db.String(100), unique=True)
@@ -111,6 +122,11 @@ class UserFinal(db.Model, JsonModel):
         self.password = password
         self.name = name
         self.phone = phone
+
+
+def object_as_dict(obj):
+    return {c.key: getattr(obj, c.key)
+            for c in inspect(obj).mapper.column_attrs}
 
 
 # Sign up endpoint
@@ -140,10 +156,14 @@ def login_post():
         username = request.form["username"]
         password = request.form["password"]
         login = UserFinal.query.filter_by(username=username, password=password).first()
+        # user_id = UserFinal.query.with_entities(UserFinal.id).filter_by(username=username, password=password).first()
         if login is None:
             return jsonify(["Wrong Credentials"])
         else:
-            return jsonify(["success"])
+            d = object_as_dict(login)
+            print(d)
+            json.dumps({"User": [d]})
+            return json.dumps({"User": [d]})
 
 
 @app.route('/')
@@ -246,9 +266,9 @@ def send_end_result_of_driver():
 
 
 # Get driver history by user username
-@app.route('/historyResult', methods=['GET'])
-def get_history_driver_rate():
-    return json.dumps({"Driver": [ss.as_dict() for ss in DriverRates.query.all()]})
+@app.route('/historyResult/<username>', methods=['GET'])
+def get_history_driver_rate(username):
+    return json.dumps({"Driver": [ss.as_dict() for ss in DriverRates.query.filter_by(username=username)]})
 
 
 @app.route('/predict', methods=['POST'])
