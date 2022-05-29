@@ -114,9 +114,9 @@ def signup_post():
     name = request.form.get('name')
     phone = request.form.get('phone')
 
-    user = User.query.filter_by(email=email).first()
+    user = Users.query.filter_by(email=email).first()
     if user is None:
-        new_user = User(email=email, password=password, name=name, phone=phone)
+        new_user = Users(email=email, password=password, name=name, phone=phone)
         db.session.add(new_user)
         db.session.commit()
         return jsonify(["Register success"])
@@ -130,7 +130,7 @@ def login_post():
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
-        login = User.query.filter_by(email=email, password=password).first()
+        login = Users.query.filter_by(email=email, password=password).first()
         if login is None:
             return jsonify(["Wrong Credentials"])
         else:
@@ -182,7 +182,7 @@ def get_data():
 
 @app.route('/getUsers', methods=['GET'])
 def get_user():
-    return json.dumps([ss.as_dict() for ss in User.query.all()])
+    return json.dumps([ss.as_dict() for ss in Users.query.all()])
 
 
 @app.route('/getResult', methods=['GET'])
