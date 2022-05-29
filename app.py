@@ -27,7 +27,7 @@ class JsonModel(object):
 
 # Initial sensor database
 class SensorValues(db.Model, JsonModel):
-    __tablename__ = 'sensor_data_upd'
+    __tablename__ = 'sensor_data_upd_2'
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.String(100))
     AccX = db.Column(db.Float)
@@ -56,7 +56,7 @@ class SensorValues(db.Model, JsonModel):
 
 # Final results database with ratings
 class DriverRates(db.Model, JsonModel):
-    __tablename__ = 'driver_rate_total'
+    __tablename__ = 'driver_rate_total_upd'
     id = db.Column(db.Integer, primary_key=True)
     driver_id = db.Column(db.Integer)
     timestamp_start = db.Column(db.String(100))
