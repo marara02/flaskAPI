@@ -21,6 +21,7 @@ class JsonModel(object):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
+# Initial sensor database
 class SensorValues(db.Model, JsonModel):
     __tablename__ = 'sensor_data_upd'
     id = db.Column(db.Integer, primary_key=True)
@@ -46,6 +47,7 @@ class SensorValues(db.Model, JsonModel):
         self.GyroZ = GyroZ
 
 
+# Final results database with ratings
 class DriverRates(db.Model, JsonModel):
     __tablename__ = 'driver_rate_total'
     id = db.Column(db.Integer, primary_key=True)
@@ -68,6 +70,7 @@ class DriverRates(db.Model, JsonModel):
         self.safety_score = safety_score
 
 
+# Second table with sensors and results
 class SensorValuesWithTarget(db.Model, JsonModel):
     __tablename__ = 'sensor_data_target'
     id = db.Column(db.Integer, primary_key=True)
@@ -93,7 +96,8 @@ class SensorValuesWithTarget(db.Model, JsonModel):
         self.Target = Target
 
 
-class Users(db.Model, JsonModel):
+# Users table
+class UserFinal(db.Model, JsonModel):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True)
     username = db.Column(db.String(100), unique=True)
@@ -109,6 +113,7 @@ class Users(db.Model, JsonModel):
         self.phone = phone
 
 
+# Sign up endpoint
 @app.route('/signup', methods=['POST'])
 def signup_post():
     email = request.form.get('email')
@@ -117,9 +122,9 @@ def signup_post():
     name = request.form.get('name')
     phone = request.form.get('phone')
 
-    user = Users.query.filter_by(username=username).first()
+    user = UserFinal.query.filter_by(username=username).first()
     if user is None:
-        new_user = Users(email=email, username=username, password=password, name=name, phone=phone)
+        new_user = UserFinal(email=email, username=username, password=password, name=name, phone=phone)
         db.session.add(new_user)
         db.session.commit()
         return jsonify(["Register success"])
@@ -127,13 +132,14 @@ def signup_post():
         return jsonify(["Username exist already exist"])
 
 
+# Sign in endpoint
 @app.route("/login", methods=["GET", "POST"])
 def login_post():
     d = {}
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        login = Users.query.filter_by(username=username, password=password).first()
+        login = UserFinal.query.filter_by(username=username, password=password).first()
         if login is None:
             return jsonify(["Wrong Credentials"])
         else:
@@ -145,6 +151,7 @@ def home():
     return "Hello World"
 
 
+# Endpoint for writing to database about sensor values
 @app.route('/saveData', methods=['POST'])
 def save_data():
     if request.method == 'POST':
@@ -164,6 +171,7 @@ def save_data():
         return "Written!"
 
 
+# Deleting data from initial sensor database
 @app.route('/deleteSensors', methods=['DELETE'])
 def delete_data():
     db.session.query(SensorValues).delete()
@@ -171,6 +179,7 @@ def delete_data():
     return "Deleted"
 
 
+# Deleting data from rating table
 @app.route('/deleteResults', methods=['DELETE'])
 def delete_results():
     db.session.query(DriverRates).delete()
@@ -178,16 +187,19 @@ def delete_results():
     return "Deleted"
 
 
+# Get all sensor values for check
 @app.route('/getAllSensorData', methods=['GET'])
 def get_data():
     return json.dumps([ss.as_dict() for ss in SensorValues.query.all()])
 
 
+# Getting all users from database
 @app.route('/getUsers', methods=['GET'])
 def get_user():
-    return json.dumps([ss.as_dict() for ss in Users.query.all()])
+    return json.dumps([ss.as_dict() for ss in UserFinal.query.all()])
 
 
+# Get result with ML
 @app.route('/getResult', methods=['GET'])
 def get_result():
     js = pd.read_json(json.dumps([ss.as_dict() for ss in SensorValues.query.all()]))
@@ -217,6 +229,7 @@ def get_result():
     return dct
 
 
+# Sending computed results to new table
 @app.route('/sendEndResult', methods=['POST'])
 def send_end_result_of_driver():
     dct = get_result()
@@ -232,6 +245,7 @@ def send_end_result_of_driver():
     return "Written to result database"
 
 
+# Get driver history by user username
 @app.route('/historyResult', methods=['GET'])
 def get_history_driver_rate():
     return json.dumps({"Driver": [ss.as_dict() for ss in DriverRates.query.all()]})
