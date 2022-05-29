@@ -96,12 +96,14 @@ class SensorValuesWithTarget(db.Model, JsonModel):
 class Users(db.Model, JsonModel):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True)
+    username = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(100))
     phone = db.Column(db.String(100))
 
-    def __init__(self, email, password, name, phone):
+    def __init__(self, email, password, username, name, phone):
         self.email = email
+        self.username = username
         self.password = password
         self.name = name
         self.phone = phone
@@ -110,27 +112,28 @@ class Users(db.Model, JsonModel):
 @app.route('/signup', methods=['POST'])
 def signup_post():
     email = request.form.get('email')
+    username = request.form.get('username')
     password = request.form.get('password')
     name = request.form.get('name')
     phone = request.form.get('phone')
 
-    user = Users.query.filter_by(email=email).first()
+    user = Users.query.filter_by(username=username).first()
     if user is None:
-        new_user = Users(email=email, password=password, name=name, phone=phone)
+        new_user = Users(email=email, username=username, password=password, name=name, phone=phone)
         db.session.add(new_user)
         db.session.commit()
         return jsonify(["Register success"])
     else:
-        return jsonify(["User already exist"])
+        return jsonify(["Username exist already exist"])
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login_post():
     d = {}
     if request.method == "POST":
-        email = request.form["email"]
+        username = request.form["username"]
         password = request.form["password"]
-        login = Users.query.filter_by(email=email, password=password).first()
+        login = Users.query.filter_by(username=username, password=password).first()
         if login is None:
             return jsonify(["Wrong Credentials"])
         else:
