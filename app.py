@@ -45,10 +45,8 @@ class UserFinal(db.Model, JsonModel):
 
 # Initial sensor database
 class SensorValues(db.Model, JsonModel):
-    __tablename__ = 'sensor_data_upd_2'
+    __tablename__ = 'sensor_data_upd'
     id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.String(100))
-    user_id = db.Column(db.Integer, db.ForeignKey('user_final.id'))
     AccX = db.Column(db.Float)
     AccY = db.Column(db.Float)
     AccZ = db.Column(db.Float)
@@ -57,6 +55,8 @@ class SensorValues(db.Model, JsonModel):
     GyroX = db.Column(db.Float)
     GyroY = db.Column(db.Float)
     GyroZ = db.Column(db.Float)
+    timestamp = db.Column(db.String(100))
+    user_id = db.Column(db.Integer, db.ForeignKey('user_final.id'))
 
     # request = db.relationship("User", backref=backref("user_final", uselist=False))
 
