@@ -25,6 +25,24 @@ class JsonModel(object):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
+# Users table
+class UserFinal(db.Model, JsonModel):
+    __tablename__ = 'user_final'
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), unique=True)
+    username = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(100))
+    name = db.Column(db.String(100))
+    phone = db.Column(db.String(100))
+
+    def __init__(self, email, password, username, name, phone):
+        self.email = email
+        self.username = username
+        self.password = password
+        self.name = name
+        self.phone = phone
+
+
 # Initial sensor database
 class SensorValues(db.Model, JsonModel):
     __tablename__ = 'sensor_data_upd_2'
@@ -38,8 +56,8 @@ class SensorValues(db.Model, JsonModel):
     GyroX = db.Column(db.Float)
     GyroY = db.Column(db.Float)
     GyroZ = db.Column(db.Float)
+    user_id = db.Column(db.Integer, db.ForeignKey('user_final.id'))
 
-    # user_id = db.Column(db.Integer, db.ForeignKey('user_final.id'))
     # request = db.relationship("User", backref=backref("user_final", uselist=False))
 
     def __init__(self, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp):
@@ -65,8 +83,7 @@ class DriverRates(db.Model, JsonModel):
     braking_rate = db.Column(db.Integer)
     cornering_rate = db.Column(db.Integer)
     safety_score = db.Column(db.Integer)
-
-    # user_id = db.Column(db.Integer, db.ForeignKey('user_final.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user_final.id'))
     # request = db.relationship("User", backref=backref("user_final", uselist=False))
 
     def __init__(self, driving_id, timestamp_start, timestamp_end, acceleration_rate, braking_rate, cornering_rate,
@@ -104,24 +121,6 @@ class SensorValuesWithTarget(db.Model, JsonModel):
         self.GyroY = GyroY
         self.GyroZ = GyroZ
         self.Target = Target
-
-
-# Users table
-class UserFinal(db.Model, JsonModel):
-    __tablename__ = 'user_final'
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), unique=True)
-    username = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
-    name = db.Column(db.String(100))
-    phone = db.Column(db.String(100))
-
-    def __init__(self, email, password, username, name, phone):
-        self.email = email
-        self.username = username
-        self.password = password
-        self.name = name
-        self.phone = phone
 
 
 def object_as_dict(obj):
