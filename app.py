@@ -269,9 +269,14 @@ def send_end_result_of_driver():
 
 
 # Get driver history by user username
-@app.route('/historyResult/<username>', methods=['GET'])
+@app.route('/historyResult', methods=['GET'])
 def get_history_driver_rate(username):
     return json.dumps({"Driver": [ss.as_dict() for ss in DriverRates.query.filter_by(username=username)]})
+
+
+@app.route('/history/<int:user_id>', methods=['GET'])
+def get_user_history(user_id: int):
+    return json.dumps({"User_result": [ss.as_dict() for ss in DriverRates.query.filter_by(id=user_id)]})
 
 
 #
