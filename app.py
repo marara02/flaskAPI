@@ -60,7 +60,8 @@ class SensorValues(db.Model, JsonModel):
 
     # request = db.relationship("User", backref=backref("user_final", uselist=False))
 
-    def __init__(self, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp, user_id):
+    def __init__(self, driving_id, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp, user_id):
+        self.id = driving_id
         self.AccX = AccX
         self.AccY = AccY
         self.AccZ = AccZ
