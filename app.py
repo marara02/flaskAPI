@@ -47,6 +47,7 @@ class UserFinal(db.Model, JsonModel):
 class SensorValues(db.Model, JsonModel):
     __tablename__ = 'sensor_data_upd'
     id = db.Column(db.Integer, primary_key=True)
+    driving_number = db.Column(db.Integer)
     AccX = db.Column(db.Float)
     AccY = db.Column(db.Float)
     AccZ = db.Column(db.Float)
@@ -60,8 +61,8 @@ class SensorValues(db.Model, JsonModel):
 
     # request = db.relationship("User", backref=backref("user_final", uselist=False))
 
-    def __init__(self, driving_id, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp, user_id):
-        self.id = driving_id
+    def __init__(self, driving_number, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp, user_id):
+        self.driving_number = driving_number
         self.AccX = AccX
         self.AccY = AccY
         self.AccZ = AccZ
@@ -177,7 +178,7 @@ def home():
 @app.route('/saveData', methods=['POST'])
 def save_data():
     if request.method == 'POST':
-        driving_id = request.form.get('id')
+        driving_number = request.form.get('driving_number')
         AccX = request.form.get('AccX')
         AccY = request.form.get('AccY')
         AccZ = request.form.get('AccZ')
@@ -189,7 +190,8 @@ def save_data():
         timestamp = request.form.get('TimeStamp')
         user_id = request.form.get('user_id')
 
-        data = SensorValues(driving_id, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp, user_id)
+        data = SensorValues(driving_number, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp,
+                            user_id)
         db.session.add(data)
         db.session.commit()
         return "Written!"
