@@ -60,8 +60,9 @@ class SensorValues(db.Model, JsonModel):
 
     # request = db.relationship("User", backref=backref("user_final", uselist=False))
 
-    def __init__(self, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp):
+    def __init__(self, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp, user_id):
         self.timestamp = timestamp
+        self.user_id = user_id
         self.AccX = AccX
         self.AccY = AccY
         self.AccZ = AccZ
@@ -84,6 +85,7 @@ class DriverRates(db.Model, JsonModel):
     cornering_rate = db.Column(db.Integer)
     safety_score = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('user_final.id'))
+
     # request = db.relationship("User", backref=backref("user_final", uselist=False))
 
     def __init__(self, driving_id, timestamp_start, timestamp_end, acceleration_rate, braking_rate, cornering_rate,
