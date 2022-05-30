@@ -48,6 +48,7 @@ class SensorValues(db.Model, JsonModel):
     __tablename__ = 'sensor_data_upd_2'
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.String(100))
+    user_id = db.Column(db.Integer, db.ForeignKey('user_final.id'))
     AccX = db.Column(db.Float)
     AccY = db.Column(db.Float)
     AccZ = db.Column(db.Float)
@@ -56,13 +57,10 @@ class SensorValues(db.Model, JsonModel):
     GyroX = db.Column(db.Float)
     GyroY = db.Column(db.Float)
     GyroZ = db.Column(db.Float)
-    user_id = db.Column(db.Integer, db.ForeignKey('user_final.id'))
 
     # request = db.relationship("User", backref=backref("user_final", uselist=False))
 
     def __init__(self, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp, user_id):
-        self.timestamp = timestamp
-        self.user_id = user_id
         self.AccX = AccX
         self.AccY = AccY
         self.AccZ = AccZ
@@ -71,6 +69,8 @@ class SensorValues(db.Model, JsonModel):
         self.GyroX = GyroX
         self.GyroY = GyroY
         self.GyroZ = GyroZ
+        self.timestamp = timestamp
+        self.user_id = user_id
 
 
 # Final results database with ratings
