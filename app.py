@@ -272,17 +272,18 @@ def get_history_driver_rate(username):
     return json.dumps({"Driver": [ss.as_dict() for ss in DriverRates.query.filter_by(username=username)]})
 
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    AccX = request.form.get('AccX')
-    AccY = request.form.get('AccY')
-    AccZ = request.form.get('AccZ')
-    GyroX = request.form.get('GyroX')
-    GyroY = request.form.get('GyroY')
-    GyroZ = request.form.get('GyroZ')
-    input_query = np.array([[GyroX, GyroY, GyroZ, AccX, AccY, AccZ]])
-    result = model.predict(input_query)[0]
-    return jsonify({'Y': str(result)})
+#
+# @app.route('/predict', methods=['POST'])
+# def predict():
+#     AccX = request.form.get('AccX')
+#     AccY = request.form.get('AccY')
+#     AccZ = request.form.get('AccZ')
+#     GyroX = request.form.get('GyroX')
+#     GyroY = request.form.get('GyroY')
+#     GyroZ = request.form.get('GyroZ')
+#     input_query = np.array([[GyroX, GyroY, GyroZ, AccX, AccY, AccZ]])
+#     result = model.predict(input_query)[0]
+#     return jsonify({'Y': str(result)})
 
 
 if __name__ == '__main__':
