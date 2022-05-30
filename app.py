@@ -185,8 +185,9 @@ def save_data():
         GyroY = request.form.get('GyroY')
         GyroZ = request.form.get('GyroZ')
         timestamp = request.form.get('TimeStamp')
+        user_id = request.form.get('user_id')
 
-        data = SensorValues(AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp)
+        data = SensorValues(AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp, user_id)
         db.session.add(data)
         db.session.commit()
         return "Written!"
@@ -228,6 +229,7 @@ def get_result():
     tet = js['timestamp'].iloc[-1]
     del js['id']
     del js['timestamp']
+    del js['user_id']
     result = model.predict(js)
     new_result = []
     for i in result:
