@@ -227,6 +227,7 @@ def get_user():
 def read_last_driving_of_driver(user_id: int, driving_name: str):
     js = pd.read_json(json.dumps([ss.as_dict() for ss in
                                   SensorValues.query.filter_by(user_id=user_id, driving_name=driving_name)]))
+    js = js.drop_duplicates('timestamp', keep='last')
     tst = js['timestamp'][0]
     tet = js['timestamp'].iloc[-1]
     del js['id']
