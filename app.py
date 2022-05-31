@@ -47,7 +47,7 @@ class UserFinal(db.Model, JsonModel):
 class SensorValues(db.Model, JsonModel):
     __tablename__ = 'sensor_data_upd'
     id = db.Column(db.Integer, primary_key=True)
-    driving_number = db.Column(db.Integer)
+    driving_name = db.Column(db.String(255))
     AccX = db.Column(db.Float)
     AccY = db.Column(db.Float)
     AccZ = db.Column(db.Float)
@@ -167,11 +167,6 @@ def login_post():
             print(d)
             json.dumps({"User": [d]})
             return json.dumps({"User": [d]})
-
-
-@app.route('/')
-def home():
-    return "Hello World"
 
 
 # Endpoint for writing to database about sensor values
