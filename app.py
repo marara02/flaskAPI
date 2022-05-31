@@ -223,7 +223,7 @@ def get_user():
 
 
 # Get data from sensor table and implement Ml, then send results to History table
-@app.route('/GetDriverLastData/<int:user_id>/<string:driving_name>', methods=['GET'])
+@app.route('/GetDriverLastData/<int:user_id>/<string:driving_name>', methods=['POST', 'GET'])
 def read_last_driving_of_driver(user_id: int, driving_name: str):
     js = pd.read_json(json.dumps([ss.as_dict() for ss in
                                   SensorValues.query.filter_by(user_id=user_id, driving_name=driving_name)]))
