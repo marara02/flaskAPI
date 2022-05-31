@@ -61,8 +61,8 @@ class SensorValues(db.Model, JsonModel):
 
     # request = db.relationship("User", backref=backref("user_final", uselist=False))
 
-    def __init__(self, driving_number, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp, user_id):
-        self.driving_number = driving_number
+    def __init__(self, driving_name, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp, user_id):
+        self.driving_name = driving_name
         self.AccX = AccX
         self.AccY = AccY
         self.AccZ = AccZ
@@ -173,7 +173,7 @@ def login_post():
 @app.route('/saveData', methods=['POST'])
 def save_data():
     if request.method == 'POST':
-        driving_number = request.form.get('driving_number')
+        driving_name = request.form.get('driving_name')
         AccX = request.form.get('AccX')
         AccY = request.form.get('AccY')
         AccZ = request.form.get('AccZ')
@@ -185,7 +185,7 @@ def save_data():
         timestamp = request.form.get('TimeStamp')
         user_id = request.form.get('user_id')
 
-        data = SensorValues(driving_number, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp,
+        data = SensorValues(driving_name, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, timestamp,
                             user_id)
         db.session.add(data)
         db.session.commit()
