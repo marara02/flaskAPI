@@ -79,20 +79,22 @@ class SensorValues(db.Model, JsonModel):
 class DriverRates(db.Model, JsonModel):
     __tablename__ = 'driver_rate_total_upd'
     id = db.Column(db.Integer, primary_key=True)
-    driver_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey('user_final.id'))
+    driving_name = db.Column(db.String(255))
     timestamp_start = db.Column(db.String(100))
     timestamp_end = db.Column(db.String(100))
     acceleration_rate = db.Column(db.Integer)
     braking_rate = db.Column(db.Integer)
     cornering_rate = db.Column(db.Integer)
     safety_score = db.Column(db.Integer)
-    user_id = db.Column(db.Integer, db.ForeignKey('user_final.id'))
 
     # request = db.relationship("User", backref=backref("user_final", uselist=False))
 
-    def __init__(self, driving_id, timestamp_start, timestamp_end, acceleration_rate, braking_rate, cornering_rate,
+    def __init__(self, user_id, driving_name, timestamp_start, timestamp_end, acceleration_rate, braking_rate,
+                 cornering_rate,
                  safety_score):
-        self.driving_id = driving_id
+        self.user_id = user_id
+        self.driving_name = driving_name
         self.timestamp_start = timestamp_start
         self.timestamp_end = timestamp_end
         self.acceleration_rate = acceleration_rate
@@ -220,10 +222,11 @@ def get_user():
     return json.dumps([ss.as_dict() for ss in UserFinal.query.all()])
 
 
-# Get result with ML
-@app.route('/getResult', methods=['GET'])
-def get_result():
-    js = pd.read_json(json.dumps([ss.as_dict() for ss in SensorValues.query.all()]))
+# Get data from sensor table and implement Ml, then send results to History table
+@app.route('/GetDriverLastData/<int:user_id>/<string:driving_name>', methods=['GET'])
+def read_last_driving_of_driver(user_id: int, driving_name: str):
+    js = pd.read_json(json.dumps([ss.as_dict() for ss in
+                                  SensorValues.query.filter_by(user_id=user_id, driving_name=driving_name)]))
     tst = js['timestamp'][0]
     tet = js['timestamp'].iloc[-1]
     del js['id']
@@ -241,28 +244,7 @@ def get_result():
     braking_rate = len(braking_times)
     cornering_rate = len(cornering_times)
     safety_score = 100 - acceleration_rate - braking_rate - cornering_rate
-    dct = {
-        "time_start": tst,
-        "time_end": tet,
-        "acceleration_rate": acceleration_rate,
-        "braking_rate": braking_rate,
-        "cornering_rate": cornering_rate,
-        "safety_score": safety_score
-    }
-    return dct
-
-
-# Sending computed results to new table
-@app.route('/sendEndResult', methods=['POST'])
-def send_end_result_of_driver():
-    dct = get_result()
-    start = dct['time_start']
-    end = dct['time_end']
-    acr = dct['acceleration_rate']
-    br = dct['braking_rate']
-    corn = dct['cornering_rate']
-    scr = dct["safety_score"]
-    data = DriverRates(1, start, end, acr, br, corn, scr)
+    data = DriverRates(user_id, driving_name, tst, tet, acceleration_rate, braking_rate, cornering_rate, safety_score)
     db.session.add(data)
     db.session.commit()
     return "Written to result database"
@@ -276,21 +258,7 @@ def get_history_driver_rate(username):
 
 @app.route('/history/<int:user_id>', methods=['GET'])
 def get_user_history(user_id: int):
-    return json.dumps({"User_result": [ss.as_dict() for ss in DriverRates.query.filter_by(id=user_id)]})
-
-
-#
-# @app.route('/predict', methods=['POST'])
-# def predict():
-#     AccX = request.form.get('AccX')
-#     AccY = request.form.get('AccY')
-#     AccZ = request.form.get('AccZ')
-#     GyroX = request.form.get('GyroX')
-#     GyroY = request.form.get('GyroY')
-#     GyroZ = request.form.get('GyroZ')
-#     input_query = np.array([[GyroX, GyroY, GyroZ, AccX, AccY, AccZ]])
-#     result = model.predict(input_query)[0]
-#     return jsonify({'Y': str(result)})
+    return json.dumps({"User_result": [ss.as_dict() for ss in DriverRates.query.filter_by(user_id=user_id)]})
 
 
 if __name__ == '__main__':
