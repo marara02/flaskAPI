@@ -229,7 +229,7 @@ def get_result():
     del js['id']
     del js['timestamp']
     del js['user_id']
-    del js['driving_number']
+    del js['driving_name']
     result = model.predict(js)
     new_result = []
     for i in result:
