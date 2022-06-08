@@ -230,7 +230,7 @@ def read_last_driving_of_driver(user_id: int, driving_name: str):
     new_result = []
     for i in result:
         new_result.append(i)
-    write_with_target(js['GPS_long'], js['GPS_Lat'], new_result)
+    write_with_target(js['GPS_Long'], js['GPS_Lat'], new_result)
     acceleration_times = [x for x in new_result if x == 0]
     braking_times = [x for x in new_result if x == 1]
     cornering_times = [x for x in new_result if x == 2]
