@@ -109,25 +109,15 @@ class DriverRates(db.Model, JsonModel):
 class SensorValuesWithTarget(db.Model, JsonModel):
     __tablename__ = 'sensor_data_target'
     id = db.Column(db.Integer, primary_key=True)
-    AccX = db.Column(db.Float)
-    AccY = db.Column(db.Float)
-    AccZ = db.Column(db.Float)
+    driving_name = db.Column(db.String(255))
     GPS_Long = db.Column(db.Float)
     GPS_Lat = db.Column(db.Float)
-    GyroX = db.Column(db.Float)
-    GyroY = db.Column(db.Float)
-    GyroZ = db.Column(db.Float)
     Target = db.Column(db.Integer)
 
-    def __init__(self, AccX, AccY, AccZ, GPS_Long, GPS_Lat, GyroX, GyroY, GyroZ, Target):
-        self.AccX = AccX
-        self.AccY = AccY
-        self.AccZ = AccZ
+    def __init__(self, driving_name, GPS_Long, GPS_Lat, Target):
+        self.driving_name = driving_name
         self.GPS_Long = GPS_Long
         self.GPS_Lat = GPS_Lat
-        self.GyroX = GyroX
-        self.GyroY = GyroY
-        self.GyroZ = GyroZ
         self.Target = Target
 
 
@@ -240,6 +230,7 @@ def read_last_driving_of_driver(user_id: int, driving_name: str):
     new_result = []
     for i in result:
         new_result.append(i)
+    write_with_target(js['GPS_long'], js['GPS_Lat'], new_result)
     acceleration_times = [x for x in new_result if x == 0]
     braking_times = [x for x in new_result if x == 1]
     cornering_times = [x for x in new_result if x == 2]
@@ -251,6 +242,16 @@ def read_last_driving_of_driver(user_id: int, driving_name: str):
     db.session.add(data)
     db.session.commit()
     return "Written to result database"
+
+
+def write_with_target(lst_1, lst_2, lst_3):
+    for i in lst_1:
+        for j in lst_2:
+            for k in lst_3:
+                data = SensorValuesWithTarget('name', i, j, k)
+                db.session.add(data)
+                db.session.commit()
+    return "Written with y!"
 
 
 # Get driver history by user username
