@@ -15,7 +15,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 model = pickle.load(open('model.pkl', 'rb'))
 app = Flask(__name__)
 app.config[
-    'SQLALCHEMY_DATABASE_URI'] = 'postgres://warsvbczvqigvl:bc7e4b24cebdb29ac8213a91733166bad6acbec63c8c4ccfd94034579265343a@ec2-52-44-13-158.compute-1.amazonaws.com:5432/d4j0960vbacuc'
+    'SQLALCHEMY_DATABASE_URI'] = 'postgresql://warsvbczvqigvl:bc7e4b24cebdb29ac8213a91733166bad6acbec63c8c4ccfd94034579265343a@ec2-52-44-13-158.compute-1.amazonaws.com:5432/d4j0960vbacuc'
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
