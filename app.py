@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 # import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
+from apscheduler.schedulers.blocking import BlockingScheduler
 
 model = pickle.load(open('model.pkl', 'rb'))
 app = Flask(__name__)
@@ -18,6 +19,7 @@ app.config[
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+sched = BlockingScheduler()
 
 
 class JsonModel(object):
@@ -195,6 +197,7 @@ def save_data():
 
 
 # Deleting data from initial sensor database
+@sched.scheduled_job('cron', day_of_week='mon-fri', hour='0-9', minute='30-59', second='*/3')
 @app.route('/deleteSensors', methods=['DELETE'])
 def delete_data():
     db.session.query(SensorValues).delete()
