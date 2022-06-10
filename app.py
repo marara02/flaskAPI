@@ -85,6 +85,10 @@ class DriverRates(db.Model, JsonModel):
     driving_name = db.Column(db.String(255))
     timestamp_start = db.Column(db.String(100))
     timestamp_end = db.Column(db.String(100))
+    gps_lat_1 = db.Column(db.Float)
+    gps_long_1 = db.Column(db.Float)
+    gps_lat_2 = db.Column(db.Float)
+    gps_long_2 = db.Column(db.Float)
     acceleration_rate = db.Column(db.Integer)
     braking_rate = db.Column(db.Integer)
     cornering_rate = db.Column(db.Integer)
@@ -92,13 +96,18 @@ class DriverRates(db.Model, JsonModel):
 
     # request = db.relationship("User", backref=backref("user_final", uselist=False))
 
-    def __init__(self, user_id, driving_name, timestamp_start, timestamp_end, acceleration_rate, braking_rate,
+    def __init__(self, user_id, driving_name, timestamp_start, timestamp_end, gps_lat_1, gps_long_1, gps_lat_2,
+                 gps_long_2, acceleration_rate, braking_rate,
                  cornering_rate,
                  safety_score):
         self.user_id = user_id
         self.driving_name = driving_name
         self.timestamp_start = timestamp_start
         self.timestamp_end = timestamp_end
+        self.gps_lat_1 = gps_lat_1
+        self.gps_lat_2 = gps_lat_2
+        self.gps_long_1 = gps_long_1
+        self.gps_long_2 = gps_long_2
         self.acceleration_rate = acceleration_rate
         self.braking_rate = braking_rate
         self.cornering_rate = cornering_rate
@@ -228,9 +237,14 @@ def read_last_driving_of_driver(user_id: int, driving_name: str):
     del js['driving_name']
     result = model.predict(js)
     new_result = []
+    new_result_1 = []
+    new_result_2 = []
     for i in result:
         new_result.append(i)
-    write_with_target(js['GPS_Long'], js['GPS_Lat'], new_result)
+    for j in js['GPS_Long']:
+        new_result_1.append(j)
+    for k in js['GPS_Lat']:
+        new_result_2.append(k)
     acceleration_times = [x for x in new_result if x == 0]
     braking_times = [x for x in new_result if x == 1]
     cornering_times = [x for x in new_result if x == 2]
@@ -238,20 +252,11 @@ def read_last_driving_of_driver(user_id: int, driving_name: str):
     braking_rate = len(braking_times)
     cornering_rate = len(cornering_times)
     safety_score = 100 - acceleration_rate - braking_rate - cornering_rate
-    data = DriverRates(user_id, driving_name, tst, tet, acceleration_rate, braking_rate, cornering_rate, safety_score)
+    data = DriverRates(user_id, driving_name, tst, tet, new_result_2[0], new_result_1[0], new_result_2[-1],
+                       new_result_1[-1], acceleration_rate, braking_rate, cornering_rate, safety_score)
     db.session.add(data)
     db.session.commit()
     return "Written to result database"
-
-
-def write_with_target(lst_1, lst_2, lst_3):
-    for i in lst_1:
-        for j in lst_2:
-            for k in lst_3:
-                data = SensorValuesWithTarget('name', i, j, k)
-                db.session.add(data)
-                db.session.commit()
-    return "Written with y!"
 
 
 # Get driver history by user username
